@@ -1,7 +1,6 @@
-package com.ecommerce.model;
+package com.ecommerce.response;
 
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
 @Data
 public class APIResponse {

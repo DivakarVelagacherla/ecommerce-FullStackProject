@@ -1,7 +1,6 @@
 package com.ecommerce.controller;
 
-import com.ecommerce.model.APIResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ecommerce.response.APIResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
