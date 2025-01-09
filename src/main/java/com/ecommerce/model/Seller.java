@@ -28,6 +28,7 @@ public class Seller {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    @Embedded
     private BusinessDetails businessDetails = new BusinessDetails();
 
     @Embedded

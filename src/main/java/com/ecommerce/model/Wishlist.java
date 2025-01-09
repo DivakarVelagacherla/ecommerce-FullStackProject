@@ -1,9 +1,8 @@
 package com.ecommerce.model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
-import org.apache.logging.log4j.util.PerformanceSensitive;
+
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +21,6 @@ public class Wishlist {
     @OneToOne
     private User user;
 
-    @ManyToOne
+    @ManyToMany
     private Set<Product> products = new HashSet<>();
 }
