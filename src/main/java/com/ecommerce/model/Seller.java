@@ -1,12 +1,10 @@
 package com.ecommerce.model;
 
 import com.ecommerce.enums.AccountStatus;
-import com.ecommerce.enums.ROLE;
+import com.ecommerce.enums.USER_ROLE;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
-
-import javax.management.relation.Role;
 
 @Entity
 @Getter
@@ -39,7 +37,7 @@ public class Seller {
 
     private String GSTIN;
 
-    private ROLE role = ROLE.SELLER;
+    private USER_ROLE role = USER_ROLE.USER_SELLER;
 
     private boolean isEmailVerified = false;
 

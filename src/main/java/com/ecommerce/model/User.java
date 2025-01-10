@@ -1,6 +1,6 @@
 package com.ecommerce.model;
 
-import com.ecommerce.enums.ROLE;
+import com.ecommerce.enums.USER_ROLE;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -32,7 +32,7 @@ public class User {
 
     private String mobileNumber;
 
-    private ROLE role = ROLE.CUSTOMER;
+    private USER_ROLE role = USER_ROLE.USER_CUSTOMER;
     @OneToMany
     private Set<Address> addresses = new HashSet<>();
     @ManyToMany
