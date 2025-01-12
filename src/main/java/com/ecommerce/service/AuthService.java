@@ -9,5 +9,5 @@ public interface AuthService {
 
     String createUser(SignUpRequest signUpRequest) throws Exception;
 
-    AuthResponse signIn(SignInRequest signInRequest);
+    AuthResponse signIn(SignInRequest signInRequest) throws Exception;
 }

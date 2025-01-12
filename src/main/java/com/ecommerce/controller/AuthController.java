@@ -51,9 +51,6 @@ public class AuthController {
     @PostMapping("/send/login-signup-otp")
     public ResponseEntity<APIResponse> sendOtp(@RequestBody VerificationCode otpRequest) throws Exception {
 
-        System.out.println("In Send OTP method");
-        System.out.println(otpRequest);
-
         authService.sendLoginOtp(otpRequest.getEmail());
 
         APIResponse apiResponse = new APIResponse();

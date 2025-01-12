@@ -4,9 +4,11 @@ import com.ecommerce.config.JWT_CONSTANT;
 import com.ecommerce.config.JwtProvider;
 import com.ecommerce.enums.USER_ROLE;
 import com.ecommerce.model.Cart;
+import com.ecommerce.model.Seller;
 import com.ecommerce.model.User;
 import com.ecommerce.model.VerificationCode;
 import com.ecommerce.repository.CartRepository;
+import com.ecommerce.repository.SellerRepository;
 import com.ecommerce.repository.UserRepository;
 import com.ecommerce.repository.VerificationCodeRepository;
 import com.ecommerce.request.SignInRequest;
@@ -30,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.ecommerce.staticVariables.StaticVariables.SELLER_PREFIX;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -41,6 +45,7 @@ public class AuthServiceImpl implements AuthService {
     private final VerificationCodeRepository verificationCodeRepository;
     private final EmailService emailService;
     private final CustomUserDetailsImpl userDetailsService;
+    private final SellerRepository sellerRepository;
 
     @Override
     public String createUser(SignUpRequest signUpRequest) throws Exception {
@@ -80,9 +85,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse signIn(SignInRequest signInRequest) {
+    public AuthResponse signIn(SignInRequest signInRequest) throws Exception {
+        System.out.println("details i passed: " + signInRequest);
+
         String email = signInRequest.getEmail();
         String otp = signInRequest.getOtp();
+
+        System.out.println(email + " " + otp);
 
         Authentication authentication = authenticate(email, otp);
         String jwt = jwtProvider.generateToken(authentication);
@@ -96,50 +105,61 @@ public class AuthServiceImpl implements AuthService {
         return authResponse;
     }
 
-    private Authentication authenticate(String email, String otp) {
+    private Authentication authenticate(String email, String otp) throws Exception {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         if (userDetails == null) {
             throw new BadCredentialsException("Invalid username");
         }
 
+        if (email.startsWith(SELLER_PREFIX)) {
+            email = email.substring(SELLER_PREFIX.length());
+        }
+
         VerificationCode verificationCode = verificationCodeRepository.findByEmail(email);
         if (verificationCode == null || !verificationCode.getOTP().equals(otp)) {
             throw new BadCredentialsException("Invalid otp");
         }
-
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
     @Override
     public void sendLoginOtp(String username) throws Exception {
 
-//        String SIGNIN_PREFIX = "signin_";
-
-        System.out.println("checking username prefix otp method " + username);
-
         if (username != null) {
-            System.out.println("checking signin prefix: " + username);
-//            String email = username.substring(SIGNIN_PREFIX.length());
-            User user = userRepository.findByEmail(username);
-            if (user == null) {
-                throw new Exception("User not available with provider");
+
+            if (username.startsWith(SELLER_PREFIX)) {
+                String email = username.substring(SELLER_PREFIX.length());
+                Seller seller = sellerRepository.findByEmail(email);
+                if (seller == null) {
+                    throw new Exception("Seller not available with email: " + email);
+                }
+                VerificationCode isExist = verificationCodeRepository.findByEmail(email);
+                if (isExist != null) {
+                    verificationCodeRepository.delete(isExist);
+                }
+            } else {
+                User user = userRepository.findByEmail(username);
+                if (user == null) {
+                    throw new Exception("User not available with provider");
+                }
+                VerificationCode isExist = verificationCodeRepository.findByEmail(username);
+                if (isExist != null) {
+                    verificationCodeRepository.delete(isExist);
+                }
             }
 
-            VerificationCode isExist = verificationCodeRepository.findByEmail(username);
-            if (isExist != null) {
-                verificationCodeRepository.delete(isExist);
-            }
 
             String otp = OtpUtil.generateOtp();
             VerificationCode verificationCode = new VerificationCode();
             verificationCode.setOTP(otp);
-            verificationCode.setEmail(username);
+            String email = username.startsWith(SELLER_PREFIX) ? username.substring(SELLER_PREFIX.length()) : username;
+            verificationCode.setEmail(email);
             verificationCodeRepository.save(verificationCode);
 
             String subject = "DIVAKAR ECOMMERCE - OPT REQUEST";
             String body = "You have requested for OPT. OTP is - " + otp;
-            emailService.sendOtpEmail(username, subject, body);
+            emailService.sendOtpEmail(email, subject, body);
 
         }
 

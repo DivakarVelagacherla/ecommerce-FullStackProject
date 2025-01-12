@@ -16,22 +16,26 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ecommerce.staticVariables.StaticVariables.SELLER_PREFIX;
+
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final SellerRepository sellerRepository;
-    private final String SELLER_PREFIX = "seller_";
 
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+        System.out.println("debugging: 1: username i sent " + username);
 
         if (username.startsWith(SELLER_PREFIX)) {
             String actualUserName = username.substring(SELLER_PREFIX.length());
+            System.out.println("username i moditifed to " + actualUserName);
             Seller seller = sellerRepository.findByEmail(actualUserName);
+            System.out.println("seller it retrieved" + seller.toString());
             if (seller != null) {
                 return buildUserDetails(seller.getEmail(), seller.getPassword(), seller.getRole());
             }
